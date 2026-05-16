@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:rules": "firebase emulators:exec --only firestore --project=demo-rules-test \"jest\""
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -16,5 +18,10 @@
     "react": "19.1.0",
     "react-native": "0.81.5"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase-tools": "^15.18.0",
+    "jest": "^30.4.2"
+  }
 }
