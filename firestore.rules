@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isValidNote(data) {
+      return data.keys().hasOnly(['text', 'createdAt'])
+          && data.text is string
+          && data.text.size() > 0
+          && data.text.size() <= 500
+          && data.createdAt is timestamp;
+    }
+
+    function isValidProfile(data) {
+      return data.keys().hasOnly(['email', 'createdAt'])
+          && data.email is string
+          && data.createdAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read:   if isOwner(userId);
+      allow create: if isOwner(userId) && isValidProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidProfile(request.resource.data)
+                  && request.resource.data.email == resource.data.email
+                  && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+
+      match /notes/{noteId} {
+        allow read:   if isOwner(userId);
+        allow create: if isOwner(userId) && isValidNote(request.resource.data);
+        allow update: if isOwner(userId) && isValidNote(request.resource.data)
+                    && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userId);
+      }
+    }
+
+  }
+}
